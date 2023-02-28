@@ -1,7 +1,7 @@
 import path from "path";
 import React from "react";
 import { renderToString } from "react-dom/server";
-import { ChunkExtractor, ChunkExtractorManager } from "@loadable/server";
+import { ChunkExtractor } from "@loadable/server";
 
 import getHtml from "./template";
 import App from "../client/App";
@@ -15,10 +15,7 @@ export default () => {
   });
 
   const content = renderToString(
-    // @ts-ignore
-    <ChunkExtractorManager extractor={extractor}>
-      <App />
-    </ChunkExtractorManager>
+    extractor.collectChunks(React.createElement(App))
   );
 
   const htmlData = {

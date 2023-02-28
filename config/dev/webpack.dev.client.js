@@ -39,7 +39,7 @@ const clientConfig = {
     rules: [
       {
         test: /\.(css|less|styl|scss|sass|sss)$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
     ],
   },
