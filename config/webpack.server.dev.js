@@ -20,7 +20,7 @@ const serverConfig = {
     rules: [
       {
         test: /\.(css|less|styl|scss|sass|sss)$/,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: ["css-loader", "sass-loader"],
       },
     ],
   },

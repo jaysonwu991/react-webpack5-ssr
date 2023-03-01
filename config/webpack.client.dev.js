@@ -23,7 +23,7 @@ const clientConfig = {
     open: true,
   },
   output: {
-    path: path.resolve(__dirname, "../distclient"),
+    path: path.resolve(__dirname, "../dist/client"),
     publicPath: '/client/',
     filename: '[name].js',
     chunkFilename: '[name].js',
