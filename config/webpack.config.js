@@ -5,7 +5,7 @@ const fontsExtension = /\.(eot|otf|ttf|woff|woff2)$/;
 module.exports = {
   stats: 'errors-warnings',
   resolve: {
-    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
   module: {
     rules: [

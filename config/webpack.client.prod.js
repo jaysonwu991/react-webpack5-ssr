@@ -5,10 +5,8 @@ const LoadablePlugin = require("@loadable/webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
-const baseConfig = require("./webpack.config.js");
-const ROOT_DIR = path.resolve(__dirname, "../");
-const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
-const BUILD_DIR = resolvePath("dist");
+const baseConfig = require("./webpack.config");
+const BUILD_DIR = path.resolve(__dirname, "../dist");
 
 const clientConfig = {
   name: 'client',
@@ -31,7 +29,7 @@ const clientConfig = {
     ],
   },
   output: {
-    path: resolvePath(BUILD_DIR, "client"),
+    path: path.resolve(__dirname, "../dist/client"),
     publicPath: "/client/",
     // Chunkhash is based on webpack entry point Each entry defined will have it’s own hash.
     // If anything changes for that particular entry point than only corresponding hash will change.

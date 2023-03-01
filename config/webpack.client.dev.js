@@ -4,10 +4,8 @@ const { merge } = require('webpack-merge');
 const LoadablePlugin = require('@loadable/webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const baseConfig = require('./webpack.config.js');
-const ROOT_DIR = path.resolve(__dirname, '../');
-const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
-const BUILD_DIR = resolvePath('dist');
+const baseConfig = require('./webpack.config');
+const BUILD_DIR = path.resolve(__dirname, "../dist");
 
 const clientConfig = {
   name: 'client',
@@ -25,7 +23,7 @@ const clientConfig = {
     open: true,
   },
   output: {
-    path: resolvePath(BUILD_DIR, 'client'),
+    path: path.resolve(__dirname, "../distclient"),
     publicPath: '/client/',
     filename: '[name].js',
     chunkFilename: '[name].js',
