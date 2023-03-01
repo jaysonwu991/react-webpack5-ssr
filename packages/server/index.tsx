@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 
 if (process.env.NODE_ENV === "development") {
-  const webpackConfig = require("../../config/dev/webpack.dev.client.js");
+  const webpackConfig = require("../../config/webpack.client.dev.js");
   const compiler: any = webpack(webpackConfig);
 
   app.use(

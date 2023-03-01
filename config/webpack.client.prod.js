@@ -1,15 +1,17 @@
-const { merge } = require("webpack-merge");
-const baseConfig = require("../webpack.base.js");
 const path = require("path");
+const { merge } = require("webpack-merge");
 const TerserPlugin = require("terser-webpack-plugin"); // This plugin is used to minify your JavaScript/Typescript files.
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin"); // A Webpack plugin to optimize \ minimize CSS assets.
 const LoadablePlugin = require("@loadable/webpack-plugin");
-const ROOT_DIR = path.resolve(__dirname, "../../");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin"); // A Webpack plugin to optimize \ minimize CSS assets.
+
+const baseConfig = require("./webpack.config.js");
+const ROOT_DIR = path.resolve(__dirname, "../");
 const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
 const BUILD_DIR = resolvePath("dist");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const clientConfig = {
+  name: 'client',
   target: "web",
   mode: "production",
   entry: {

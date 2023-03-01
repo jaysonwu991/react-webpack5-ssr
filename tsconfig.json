@@ -2,7 +2,7 @@
   "compilerOptions": {
     "lib": [
       "dom",
-      "es2021",
+      "esnext",
     ],
     "module": "esnext",
     "target": "esnext",

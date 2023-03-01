@@ -1,14 +1,16 @@
+const path = require('path');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
-const path = require('path');
-const baseConfig = require('../webpack.base.js');
-const ROOT_DIR = path.resolve(__dirname, '../../');
-const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
-const BUILD_DIR = resolvePath('dist');
 const LoadablePlugin = require('@loadable/webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const baseConfig = require('./webpack.config.js');
+const ROOT_DIR = path.resolve(__dirname, '../');
+const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
+const BUILD_DIR = resolvePath('dist');
+
 const clientConfig = {
+  name: 'client',
   target: 'web',
   mode: 'development',
   entry: {

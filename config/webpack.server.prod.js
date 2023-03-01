@@ -1,16 +1,17 @@
-const { merge } = require('webpack-merge');
-const baseConfig = require('../webpack.base.js');
-const webpackNodeExternals = require('webpack-node-externals');
 const path = require('path');
-const ROOT_DIR = path.resolve(__dirname, '../../');
-const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
-const BUILD_DIR = resolvePath('dist');
+const { merge } = require('webpack-merge');
+const webpackNodeExternals = require('webpack-node-externals');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const baseConfig = require('./webpack.config.js');
+const ROOT_DIR = path.resolve(__dirname, '../');
+const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
+const BUILD_DIR = resolvePath('dist');
+
 const serverConfig = {
+  name: 'server',
   target: 'node',
   mode: 'production',
-  name: 'server',
   entry: {
     server: './packages/server/index.tsx',
   },

@@ -1,14 +1,15 @@
 import React from "react";
 import { hydrate, render } from "react-dom";
-import { loadableReady } from "@loadable/component";
+import loadable, { loadableReady } from "@loadable/component";
 
-import App from "./App";
+const App1 = loadable(() => import("./components/App1/App"));
+const App2 = loadable(() => import("./components/App2/App"));
 
 const renderApp = () => {
   const rootContent = document.getElementById("root");
   const renderMethod = module.hot ? render : hydrate;
 
-  renderMethod(<App />, rootContent);
+  renderMethod(<><App1 /><App2 /></>, rootContent);
 };
 
 loadableReady(() => {

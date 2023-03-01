@@ -4,7 +4,8 @@ import { renderToString } from "react-dom/server";
 import { ChunkExtractor } from "@loadable/server";
 
 import getHtml from "./template";
-import App from "../client/App";
+import App1 from "../client/components/App1/App";
+import App2 from "../client/components/App2/App";
 
 export default () => {
   const loadableJson = path.resolve(__dirname, "./loadable-stats.json");
@@ -14,12 +15,15 @@ export default () => {
     entrypoints: ["client"],
   });
 
-  const content = renderToString(
-    extractor.collectChunks(React.createElement(App))
+  const app1Content = renderToString(
+    extractor.collectChunks(React.createElement(App1))
+  );
+  const app2Content = renderToString(
+    extractor.collectChunks(React.createElement(App2))
   );
 
   const htmlData = {
-    children: content,
+    children: app1Content + '' + app2Content,
     extractor,
   };
 
