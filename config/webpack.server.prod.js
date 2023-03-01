@@ -23,15 +23,12 @@ const serverConfig = {
     rules: [
       {
         test: /\.(css|less|styl|scss|sass|sss)$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
     ],
   },
   plugins: [
-    new MiniCssExtractPlugin({
-      filename: '[name].[chunkhash:8].css',
-      ignoreOrder: true,
-    }),
+    new MiniCssExtractPlugin(),
   ],
   output: {
     path: BUILD_DIR,

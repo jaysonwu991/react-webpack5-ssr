@@ -6,10 +6,10 @@
     "start": "rm -rf dist && webpack --config config/webpack.client.dev.js --config config/webpack.server.dev.js && node dist/server.js",
     "startWatch": "npm-run-all --parallel startWatch:*",
     "startWatch:server": "nodemon --watch dist --exec node dist/server.js",
-    "startWatch:build-server": "webpack --config config/webpack.server.dev.js --watch",
     "startWatch:build-client": "webpack --config config/webpack.client.dev.js --watch --no-cache",
-    "build:prod": "rm -rf dist && webpack --config config/webpack.client.prod.js config/webpack.server.prod.js",
-    "build:dev": "rm -rf ./dist && webpack --config config/webpack.client.dev.js --config config/webpack.server.dev.js"
+    "startWatch:build-server": "webpack --config config/webpack.server.dev.js --watch",
+    "build:dev": "rm -rf dist && webpack --config config/webpack.client.dev.js --config config/webpack.server.dev.js",
+    "build:prod": "rm -rf dist && webpack --config config/webpack.client.prod.js config/webpack.server.prod.js"
   },
   "dependencies": {
     "@loadable/component": "^5.15.3",
@@ -21,7 +21,6 @@
     "css-loader": "^5.2.6",
     "dotenv": "^10.0.0",
     "express": "^4.18.2",
-    "mini-css-extract-plugin": "^2.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "style-loader": "^2.0.0",
@@ -47,6 +46,8 @@
     "@types/webpack-env": "^1.18.0",
     "@types/webpack-hot-middleware": "^2.25.4",
     "babel-loader": "^8.2.2",
+    "css-minimizer-webpack-plugin": "^4.2.2",
+    "mini-css-extract-plugin": "^2.7.2",
     "nodemon": "^2.0.7",
     "npm-run-all": "^4.1.5",
     "sass-embedded": "^1.58.3",
