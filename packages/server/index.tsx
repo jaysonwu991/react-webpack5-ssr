@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import express from "express";
 import webpack from "webpack";
 import compression from "compression";
@@ -6,8 +5,6 @@ import WebpackDevMiddleware from "webpack-dev-middleware";
 import WebpackHotMiddleware from "webpack-hot-middleware";
 
 import renderer from "./renderer";
-
-dotenv.config();
 
 const app = express();
 
