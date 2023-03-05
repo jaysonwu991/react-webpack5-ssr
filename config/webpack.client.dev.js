@@ -26,7 +26,7 @@ const clientConfig = {
     path: path.resolve(__dirname, "../dist/client"),
     publicPath: '/client/',
     filename: '[name].js',
-    chunkFilename: '[name].js',
+    // chunkFilename: '[name].js',
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: (info) => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
     assetModuleFilename: 'assets/[hash][ext][query]',
@@ -47,11 +47,7 @@ const clientConfig = {
     new MiniCssExtractPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     //loadable plugin will create all the chunks
-    new LoadablePlugin({
-      outputAsset: false, // to avoid writing loadable-stats in the same output as client
-      writeToDisk: true,
-      filename: `${BUILD_DIR}/loadable-stats.json`,
-    }),
+    new LoadablePlugin(),
     // you can add additional plugins here like BundleAnalyzerPlugin, Copy Plugin etc.
   ],
   optimization: {

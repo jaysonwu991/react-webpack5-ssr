@@ -1,23 +1,32 @@
 import { ReactNode } from "react";
+import serialize from "serialize-javascript";
 import { ChunkExtractor } from "@loadable/server";
 
+const app1Props = { name: "Jayson" };
+
 export default ({
-  children,
+  contents,
   extractor,
 }: {
-  children: ReactNode;
+  contents: ReactNode[];
   extractor: ChunkExtractor;
 }) => {
-  return `<html lang="en" class="h-100">
+  return `<html lang="en">
   <head>
-  <base href="/" />
+    <base href="/" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>React BoilerPlate</title>
     ${extractor.getStyleTags()}
   </head>
-  <body class="h-100">
-    <div id="root">${children}</div>
+  <body>
+    <div id="root">
+      <div id="App1">${contents[0]}</div>
+      <div id="App2">${contents[1]}</div>
+    </div>
+    <script>
+      window.INITIAL_DATA = ${serialize({ app1Props })}
+    </script>
     ${extractor.getScriptTags()}
   </body>
 </html>`;

@@ -2,8 +2,18 @@ import React from "react";
 
 import "./App.scss";
 
-const App = () => {
-  return <div className="App1">This is App 1</div>;
+type Props = {
+  name?: string;
+};
+
+const App = (props: Props) => {
+  return (
+    <div className="App1">
+      <span>Hello {props.name} from App 1</span>
+      <br />
+      <span onClick={() => console.log("Hello World!")}>Click Me!</span>
+    </div>
+  );
 };
 
 export default App;

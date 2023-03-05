@@ -28,7 +28,7 @@ const serverConfig = {
     path: BUILD_DIR,
     filename: "[name].js",
     libraryTarget: "commonjs2",
-    chunkFilename: "chunks/[name].js",
+    // chunkFilename: "chunks/[name].js",
     devtoolModuleFilenameTemplate: (info) =>
       path.resolve(info.absoluteResourcePath).replace(/\\/g, "/"),
     assetModuleFilename: "assets/[hash][ext][query]",

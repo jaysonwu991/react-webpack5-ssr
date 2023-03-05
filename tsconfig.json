@@ -23,13 +23,14 @@
     "baseUrl": ".",
     "removeComments": true,
     "forceConsistentCasingInFileNames": true,
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": [
-    "packages"
+    "packages",
+    "types"
   ],
   "exclude": [
     "node_modules",
     "**/*.js",
   ],
-  "types": [ "webpack-env" ],
 }
