@@ -3,7 +3,7 @@ const { merge } = require("webpack-merge");
 const webpackNodeExternals = require("webpack-node-externals");
 
 const baseConfig = require("./webpack.config");
-const BUILD_DIR = path.resolve(__dirname, "../dist");
+const BUILD_DIR = path.resolve(__dirname, "../dist/server");
 
 const serverConfig = {
   name: "server",
@@ -19,8 +19,8 @@ const serverConfig = {
     ...baseConfig.module,
     rules: [
       {
-        test: /\.(css|less|styl|scss|sass|sss)$/,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        test: /\.(sass|s?css)$/,
+        use: ["css-loader", "sass-loader"],
       },
     ],
   },

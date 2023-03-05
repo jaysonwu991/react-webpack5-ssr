@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "rm -rf dist && webpack --config config/webpack.client.dev.js --config config/webpack.server.dev.js && node dist/server.js",
+    "start": "rm -rf dist && webpack --config config/webpack.client.dev.js --config config/webpack.server.dev.js && node dist/server/server.js",
     "startWatch": "npm-run-all --parallel startWatch:*",
-    "startWatch:server": "nodemon --watch dist --exec node dist/server.js",
+    "startWatch:server": "nodemon --watch dist --exec node dist/server/server.js",
     "startWatch:build-client": "webpack --config config/webpack.client.dev.js --watch --no-cache",
     "startWatch:build-server": "webpack --config config/webpack.server.dev.js --watch",
     "build:dev": "rm -rf dist && webpack --config config/webpack.client.dev.js --config config/webpack.server.dev.js",

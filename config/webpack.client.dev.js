@@ -5,7 +5,7 @@ const LoadablePlugin = require('@loadable/webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const baseConfig = require('./webpack.config');
-const BUILD_DIR = path.resolve(__dirname, "../dist");
+const BUILD_DIR = path.resolve(__dirname, "../dist/client");
 
 const clientConfig = {
   name: 'client',
@@ -23,10 +23,10 @@ const clientConfig = {
     open: true,
   },
   output: {
-    path: path.resolve(__dirname, "../dist/client"),
+    path: BUILD_DIR,
     publicPath: '/client/',
     filename: '[name].js',
-    // chunkFilename: '[name].js',
+    chunkFilename: 'chunks/[name].js',
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: (info) => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
     assetModuleFilename: 'assets/[hash][ext][query]',
@@ -38,17 +38,15 @@ const clientConfig = {
     ...baseConfig.module,
     rules: [
       {
-        test: /\.(css|less|styl|scss|sass|sss)$/,
+        test: /\.(sass|s?css)$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
     ],
   },
   plugins: [
+    new LoadablePlugin(),
     new MiniCssExtractPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    //loadable plugin will create all the chunks
-    new LoadablePlugin(),
-    // you can add additional plugins here like BundleAnalyzerPlugin, Copy Plugin etc.
   ],
   optimization: {
     runtimeChunk: 'single', // creates a runtime file to be shared for all generated chunks.

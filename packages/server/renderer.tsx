@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default () => {
-  const loadableJson = path.resolve(__dirname, "./client/loadable-stats.json");
+  const loadableJson = path.resolve(__dirname, "../client/loadable-stats.json");
 
   const extractor = new ChunkExtractor({
     statsFile: loadableJson,

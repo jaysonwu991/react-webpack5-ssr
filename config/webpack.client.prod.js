@@ -6,7 +6,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 const baseConfig = require("./webpack.config");
-const BUILD_DIR = path.resolve(__dirname, "../dist");
+const BUILD_DIR = path.resolve(__dirname, "../dist/client");
 
 const clientConfig = {
   name: 'client',
@@ -23,30 +23,26 @@ const clientConfig = {
     ...baseConfig.module,
     rules: [
       {
-        test: /\.(css|less|styl|scss|sass|sss)$/,
+        test: /\.(sass|s?css)$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
     ],
   },
   output: {
-    path: path.resolve(__dirname, "../dist/client"),
+    path: BUILD_DIR,
     publicPath: "/client/",
     // Chunkhash is based on webpack entry point Each entry defined will have it’s own hash.
     // If anything changes for that particular entry point than only corresponding hash will change.
     // :8 is used to done slicing of hashes (eg: 8c4cbfdb instead of 8c4cbfdb91ff93f3f3c5).
     filename: "[name].[chunkhash:8].js",
-    chunkFilename: "[name].[chunkhash:8].js",
+    chunkFilename: "chunks/[name].[chunkhash:8].js",
     assetModuleFilename: "assets/[hash][ext][query]",
   },
   plugins: [
+    new LoadablePlugin(),
     new MiniCssExtractPlugin({
       filename: "[name].[chunkhash:8].css",
       ignoreOrder: true,
-    }),
-    new LoadablePlugin({
-      outputAsset: false,
-      writeToDisk: true,
-      filename: `${BUILD_DIR}/loadable-stats.json`,
     }),
     // Add any plugins required here for example: Bundle Analyzer, Copy Plugin etc
   ],

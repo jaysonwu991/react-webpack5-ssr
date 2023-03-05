@@ -3,7 +3,7 @@ const { merge } = require("webpack-merge");
 const webpackNodeExternals = require("webpack-node-externals");
 
 const baseConfig = require("./webpack.config");
-const BUILD_DIR = path.resolve(__dirname, "../dist");
+const BUILD_DIR = path.resolve(__dirname, "../dist/server");
 
 const serverConfig = {
   name: "server",
@@ -19,7 +19,7 @@ const serverConfig = {
     ...baseConfig.module,
     rules: [
       {
-        test: /\.(css|less|styl|scss|sass|sss)$/,
+        test: /\.(sass|s?css)$/,
         use: ["css-loader", "sass-loader"],
       },
     ],
@@ -28,7 +28,7 @@ const serverConfig = {
     path: BUILD_DIR,
     filename: "[name].js",
     libraryTarget: "commonjs2",
-    // chunkFilename: "chunks/[name].js",
+    chunkFilename: "chunks/[name].js",
     devtoolModuleFilenameTemplate: (info) =>
       path.resolve(info.absoluteResourcePath).replace(/\\/g, "/"),
     assetModuleFilename: "assets/[hash][ext][query]",
