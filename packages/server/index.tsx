@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import webpack from "webpack";
 import compression from "compression";
@@ -24,7 +25,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Gzip
 app.use(compression());
-app.use(express.static("dist"));
+app.use(express.static(path.join(__dirname, "../")));
 
 app.get("*", (_req: express.Request, res: express.Response) => {
   try {
