@@ -1,16 +1,18 @@
 const path = require('path');
 const webpack = require('webpack');
-const { merge } = require('webpack-merge');
 const LoadablePlugin = require('@loadable/webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const baseConfig = require('./webpack.config');
 const BUILD_DIR = path.resolve(__dirname, "../dist/client");
 
-const clientConfig = {
+module.exports = {
   name: 'client',
   target: 'web',
   mode: 'development',
+  stats: 'errors-warnings',
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  },
   entry: {
     client: ['webpack-hot-middleware/client?reload=true&noInfo=true', './packages/client/index.tsx'],
   },
@@ -25,18 +27,19 @@ const clientConfig = {
   output: {
     path: BUILD_DIR,
     publicPath: '/client/',
-    filename: '[name].js',
-    chunkFilename: 'chunks/[name].js',
+    filename: 'static/js/[name].js',
+    chunkFilename: 'static/js/[name].js',
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: (info) => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
     assetModuleFilename: 'assets/[hash][ext][query]',
   },
-  resolve: {
-    ...baseConfig.resolve,
-  },
   module: {
-    ...baseConfig.module,
     rules: [
+      {
+        test: /\.(tsx|ts|js|jsx|mjs)$/,
+        exclude: /node_modules/,
+        use: 'babel-loader',
+      },
       {
         test: /\.(sass|s?css)$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
@@ -45,7 +48,10 @@ const clientConfig = {
   },
   plugins: [
     new LoadablePlugin(),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "static/css/[name].[chunkhash:8].css",
+      ignoreOrder: true,
+    }),
     new webpack.HotModuleReplacementPlugin(),
   ],
   optimization: {
@@ -66,5 +72,3 @@ const clientConfig = {
     minimizer: [],
   },
 };
-
-module.exports = merge(baseConfig, clientConfig);

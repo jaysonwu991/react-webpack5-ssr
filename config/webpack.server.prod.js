@@ -1,23 +1,26 @@
 const path = require("path");
-const { merge } = require("webpack-merge");
 const webpackNodeExternals = require("webpack-node-externals");
 
-const baseConfig = require("./webpack.config");
 const BUILD_DIR = path.resolve(__dirname, "../dist/server");
 
-const serverConfig = {
+module.exports = {
   name: "server",
   target: "node",
   mode: "production",
+  stats: 'errors-warnings',
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  },
   entry: {
     server: "./packages/server/index.tsx",
   },
-  resolve: {
-    ...baseConfig.resolve,
-  },
   module: {
-    ...baseConfig.module,
     rules: [
+      {
+        test: /\.(tsx|ts|js|jsx|mjs)$/,
+        exclude: /node_modules/,
+        use: 'babel-loader',
+      },
       {
         test: /\.(sass|s?css)$/,
         use: ["css-loader", "sass-loader"],
@@ -28,10 +31,8 @@ const serverConfig = {
     path: BUILD_DIR,
     filename: "[name].js",
     libraryTarget: "commonjs2",
-    chunkFilename: "chunks/[name].js",
+    chunkFilename: "[name].js",
     assetModuleFilename: "assets/[hash][ext][query]",
   },
   externals: [webpackNodeExternals()],
 };
-
-module.exports = merge(baseConfig, serverConfig);
