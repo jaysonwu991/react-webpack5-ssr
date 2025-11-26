@@ -29,7 +29,7 @@
     ]
   },
   "include": [
-    "packages",
+    "src",
     "types"
   ],
   "exclude": [

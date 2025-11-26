@@ -1,0 +1,17 @@
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  gap: 1.5rem;
+  align-content: center;
+  justify-items: center;
+  padding: 3rem 1.5rem;
+  background: linear-gradient(135deg, #f3f6ff 0%, #fefefe 100%);
+  color: #0f172a;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    padding: 4rem 2rem;
+  }
+}
