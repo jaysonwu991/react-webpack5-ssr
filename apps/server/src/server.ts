@@ -5,16 +5,16 @@ import compression from "compression";
 import serialize from "serialize-javascript";
 import type { ViteDevServer } from "vite";
 import { pathToFileURL } from "url";
-import { renderToPipeableStream } from "react-dom/server";
+import { renderToString } from "react-dom/server";
 import type { ReactElement } from "react";
 
-import type { AppBootstrapData } from "../shared/types/appData";
+import type { AppBootstrapData } from "@shared/types/appData";
 import type { ClientManifest } from "./ssr/createRenderContext";
 
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 const SSR_ENTRY_BASENAME = "createRenderContext";
-const SSR_ENTRY_SOURCE = "/src/server/ssr/createRenderContext.tsx";
+const SSR_ENTRY_SOURCE = "/apps/server/src/ssr/createRenderContext.tsx";
 const SSR_MANIFEST_LOCATIONS = [
   "dist/client/.vite/ssr-manifest.json",
   "dist/client/ssr-manifest.json",
@@ -78,11 +78,19 @@ async function createServer() {
     app.use(express.static(resolveFromRoot("dist/client"), { index: false }));
   }
 
-  app.use("*", async (req, res) => {
+  // Catch-all handler for SSR; Express 5 no longer accepts "*" with path-to-regexp v8.
+  app.use(async (req, res) => {
     const requestedUrl = req.originalUrl;
 
     try {
-      const bootstrapData: AppBootstrapData = { appProps: { name: "Jayson" } };
+      const userName = "Jayson";
+      const shouldShowCalloutBanner = true;
+      const bootstrapData: AppBootstrapData = {
+        components: {
+          ...(userName ? { greetingCard: { name: userName } } : {}),
+          ...(shouldShowCalloutBanner ? { calloutBanner: {} } : {}),
+        },
+      };
 
       let template: string;
       type RenderContext = { element: ReactElement; preloadLinks: string };
@@ -124,42 +132,11 @@ async function createServer() {
           })}</script>`
         );
 
-      const [htmlStart, htmlEnd] = templateWithState.split("<!--app-html-->");
-      const startChunk = htmlStart ?? templateWithState;
-      const endChunk = htmlEnd ?? "";
+      const appHtml = renderToString(element);
+      const fullHtml = templateWithState.replace("<!--app-html-->", appHtml);
 
-      const { pipe, abort } = renderToPipeableStream(element, {
-        onShellReady() {
-          res.status(200).setHeader("Content-Type", "text/html");
-          res.write(startChunk);
-          pipe(res);
-        },
-        onAllReady() {
-          clearTimeout(streamTimeout);
-          res.write(endChunk);
-          res.end();
-        },
-        onShellError(err) {
-          clearTimeout(streamTimeout);
-          if (!isProduction && vite) {
-            vite.ssrFixStacktrace(err as Error);
-          }
-          res.status(500).setHeader("Content-Type", "text/html");
-          res.end("Internal Server Error");
-          console.error("SSR shell error:", err);
-        },
-        onError(err) {
-          if (!isProduction && vite) {
-            vite.ssrFixStacktrace(err as Error);
-          }
-          console.error("Error during SSR stream:", err);
-        },
-      });
-
-      const streamTimeout = setTimeout(() => {
-        console.error("SSR streaming timed out, aborting.");
-        abort();
-      }, 10000);
+      res.status(200).setHeader("Content-Type", "text/html");
+      res.end(fullHtml);
     } catch (err) {
       if (!isProduction && vite) {
         vite.ssrFixStacktrace(err as Error);

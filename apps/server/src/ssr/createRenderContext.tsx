@@ -1,11 +1,11 @@
 import { createElement } from "react";
 
-import RootApp from "../../client/app/RootApp";
-import type { AppBootstrapData } from "../../shared/types/appData";
+import RootApp from "@webapp/app/RootApp";
+import type { AppBootstrapData } from "@shared/types/appData";
 
 export type ClientManifest = Record<string, string[]>;
 
-const CLIENT_ENTRY = "src/client/entry-client.tsx";
+const CLIENT_ENTRY = "apps/webapp/src/entry-client.tsx";
 
 export function buildRenderContext(
   _url: string,
@@ -17,7 +17,7 @@ export function buildRenderContext(
     : "";
 
   return {
-    element: createElement(RootApp, bootstrapData.appProps),
+    element: createElement(RootApp, bootstrapData.components),
     preloadLinks,
   };
 }

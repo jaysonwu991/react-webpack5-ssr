@@ -1,4 +1,4 @@
-import type { AppBootstrapData } from "../src/shared/types/appData";
+import type { AppBootstrapData } from "../libs/shared/src/types/appData";
 
 export {};
 

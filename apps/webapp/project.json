@@ -1,0 +1,19 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "webapp",
+  "projectType": "application",
+  "root": "apps/webapp",
+  "sourceRoot": "apps/webapp/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/dist"
+      ],
+      "options": {
+        "command": "rm -rf dist && vite build && vite build --ssr apps/server/src/ssr/createRenderContext.tsx --outDir dist/server"
+      }
+    }
+  },
+  "tags": []
+}
