@@ -5,8 +5,9 @@ import compression from "compression";
 import serialize from "serialize-javascript";
 import type { ViteDevServer } from "vite";
 import { pathToFileURL } from "url";
-import { renderToString } from "react-dom/server";
+import { renderToPipeableStream } from "react-dom/server";
 import type { ReactElement } from "react";
+import { Transform } from "stream";
 
 import type { AppBootstrapData } from "@shared/types/appData";
 import type { ClientManifest } from "./ssr/createRenderContext";
@@ -132,11 +133,35 @@ async function createServer() {
           })}</script>`
         );
 
-      const appHtml = renderToString(element);
-      const fullHtml = templateWithState.replace("<!--app-html-->", appHtml);
+      const [htmlStart, htmlEnd] = templateWithState.split("<!--app-html-->");
 
       res.status(200).setHeader("Content-Type", "text/html");
-      res.end(fullHtml);
+
+      const { pipe } = renderToPipeableStream(element, {
+        onShellReady() {
+          res.write(htmlStart);
+          const transformStream = new Transform({
+            transform(chunk: Buffer, _encoding: string, callback: () => void) {
+              this.push(chunk);
+              callback();
+            },
+            final(callback: () => void) {
+              this.push(htmlEnd);
+              callback();
+            },
+          });
+
+          transformStream.pipe(res);
+          pipe(transformStream);
+        },
+        onShellError(error) {
+          console.error("Shell error:", error);
+          res.status(500).end((error as Error).stack);
+        },
+        onError(error) {
+          console.error("Stream error:", error);
+        },
+      });
     } catch (err) {
       if (!isProduction && vite) {
         vite.ssrFixStacktrace(err as Error);
