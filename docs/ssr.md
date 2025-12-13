@@ -40,7 +40,7 @@ flowchart TD
 
 ## Request lifecycle
 
-- Requests flow through the Express routes defined in `apps/server/src/server.ts`, which build `AppState` objects using helpers in `apps/server/src/routes/appRoutes.ts`.
+- Requests flow through the Express routes defined in `apps/server/src/server.ts`, which are configured from `apps/server/src/routes/routeConfig.ts` and build `AppState` objects using helpers in `apps/server/src/routes/appRoutes.ts`.
 - The server chooses the HTML template: dev uses Vite's `transformIndexHtml`; prod reads `dist/webapp/index.html`.
 - Loads `buildRenderContext` from `apps/webapp/src/ssr/createRenderContext.ts` (bundled to `dist/server/createRenderContext.*` in prod).
 - Each route builds an `AppState` (route key + component props) using helpers in `apps/server/src/routes/componentData.ts` and passes it to `buildRenderContext`, which renders `<RootApp>` via `renderApp` and emits preload links from the SSR manifest when available.
@@ -56,7 +56,9 @@ flowchart TD
 
 ## Controlling component visibility
 
-- Express routes return component props using helpers in `apps/server/src/routes/componentData.ts`.
+- Express routes return component props using helpers in `apps/server/src/routes/componentData.ts`, wired up through `apps/server/src/routes/routeConfig.ts` (override defaults with `GREETING_DEFAULT_NAME`/`GREETING_HOME_NAME` if desired).
+- Routes can also provide optional template transforms in `apps/server/src/routes/routeConfig.ts` so the server can tweak `<title>`/meta content per route before streaming HTML to the client.
+- The same config also accepts `templatePath` so you can use templates (e.g., `apps/server/templates/home-page.html`, `greeting-page.html`, `callout-landing.html`) for a specific route without touching the client entry.
 - Examples:
   - Home route (`/`) uses `fetchHomeProps()` → GreetingCard + CalloutBanner.
   - Greeting-only routes (`/hello` and `/hello/:name`) use `fetchGreetingCardProps(params.name)`.

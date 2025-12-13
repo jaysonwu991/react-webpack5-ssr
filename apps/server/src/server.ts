@@ -9,21 +9,17 @@ import { renderToPipeableStream } from "react-dom/server";
 import type { ReactElement } from "react";
 import { Transform } from "stream";
 
-import {
-  buildCalloutState,
-  buildGreetingState,
-  buildHomeState,
-  buildNotFoundState,
-} from "./routes/appRoutes";
+import { routerConfig, type TemplateTransform } from "./routes/routeConfig";
+import { CLIENT_ENTRY } from "@shared/constants/ssrEntry";
 import type { AppState } from "@shared/types/appState";
 
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 const SSR_ENTRY_BASENAME = "createRenderContext";
 const SSR_ENTRY_SOURCE = "/apps/webapp/src/ssr/createRenderContext.ts";
-const SSR_MANIFEST_LOCATIONS = [
-  "dist/webapp/.vite/ssr-manifest.json",
-  "dist/webapp/ssr-manifest.json",
+const CLIENT_MANIFEST_LOCATIONS = [
+  "dist/webapp/.vite/manifest.json",
+  "dist/webapp/manifest.json",
 ];
 const resolveFromRoot = (...paths: string[]) =>
   path.resolve(process.cwd(), ...paths);
@@ -39,10 +35,19 @@ const resolveBuiltSsrModuleUrl = () => {
   ).href;
 };
 
-type ClientManifest = Record<string, string[]>;
+type ManifestEntry = {
+  file: string;
+  name?: string;
+  src?: string;
+  isEntry?: boolean;
+  css?: string[];
+  assets?: string[];
+};
+
+type ClientManifest = Record<string, ManifestEntry>;
 
 const readClientManifest = (): ClientManifest | undefined => {
-  for (const manifestPath of SSR_MANIFEST_LOCATIONS) {
+  for (const manifestPath of CLIENT_MANIFEST_LOCATIONS) {
     const absolutePath = resolveFromRoot(manifestPath);
     if (fs.existsSync(absolutePath)) {
       const manifest = fs.readFileSync(absolutePath, "utf-8");
@@ -59,8 +64,16 @@ async function createServer() {
   app.use(compression());
 
   let vite: ViteDevServer | undefined;
-  let productionTemplate: string | undefined;
   let ssrManifest: ClientManifest | undefined;
+
+  const productionTemplateCache = new Map<string, string>();
+  const DEFAULT_DEV_TEMPLATE = "index.html";
+  const DEFAULT_PROD_TEMPLATE = "dist/webapp/index.html";
+
+  const resolveTemplateFilePath = (override?: string) =>
+    resolveFromRoot(
+      override ?? (isProduction ? DEFAULT_PROD_TEMPLATE : DEFAULT_DEV_TEMPLATE)
+    );
 
   if (!isProduction) {
     const { createServer: createViteServer } = await import("vite");
@@ -72,11 +85,6 @@ async function createServer() {
 
     app.use(vite.middlewares);
   } else {
-    productionTemplate = fs.readFileSync(
-      resolveFromRoot("dist/webapp/index.html"),
-      "utf-8"
-    );
-
     ssrManifest = readClientManifest();
 
     app.use(
@@ -97,27 +105,83 @@ async function createServer() {
     manifest?: ClientManifest
   ) => Promise<RenderContext> | RenderContext;
 
-  const renderRequest = async (state: AppState, req: express.Request, res: express.Response) => {
+  const applyRouteTemplate = async (
+    template: string,
+    transform: TemplateTransform | undefined,
+    req: express.Request
+  ) => (transform ? await transform(template, req) : template);
+
+  const renderEntryScripts = (manifest?: ClientManifest) => {
+    if (manifest) {
+      const htmlEntry = manifest["index.html"];
+      if (htmlEntry?.file) {
+        return `<script type="module" crossorigin src="/${htmlEntry.file}"></script>`;
+      }
+    }
+    return `<script type="module" src="/${CLIENT_ENTRY}"></script>`;
+  };
+
+  const removeDevEntryScriptTags = (template: string) =>
+    template.replace(
+      /<script\b[^>]*data-entry=["']?true["']?[^>]*><\/script>\s*/gi,
+      ""
+    );
+
+  const injectEntryScripts = (template: string, scripts: string) => {
+    if (template.includes("<!--entry-scripts-->")) {
+      return template.replace("<!--entry-scripts-->", scripts);
+    }
+
+    if (template.includes("</head>")) {
+      return template.replace("</head>", `${scripts}</head>`);
+    }
+
+    return `${scripts}${template}`;
+  };
+
+  const renderRequest = async (
+    state: AppState,
+    req: express.Request,
+    res: express.Response,
+    templatePath?: string,
+    templateTransform?: TemplateTransform
+  ) => {
     const requestedUrl = req.originalUrl;
 
     try {
       let template: string;
       let buildRenderContext: RenderContextBuilder;
 
+      const templateFilePath = resolveTemplateFilePath(templatePath);
+
       if (!isProduction) {
-        const rawTemplate = fs.readFileSync(
-          resolveFromRoot("index.html"),
-          "utf-8"
+        const rawTemplate = fs.readFileSync(templateFilePath, "utf-8");
+        template = await vite!.transformIndexHtml(
+          requestedUrl,
+          rawTemplate
         );
-        template = await vite!.transformIndexHtml(requestedUrl, rawTemplate);
 
         const ssrModule = await vite!.ssrLoadModule(SSR_ENTRY_SOURCE);
         buildRenderContext = ssrModule.buildRenderContext;
       } else {
-        template = productionTemplate!;
+        if (!productionTemplateCache.has(templateFilePath)) {
+          productionTemplateCache.set(
+            templateFilePath,
+            fs.readFileSync(templateFilePath, "utf-8")
+          );
+        }
+
+        template = productionTemplateCache.get(templateFilePath)!;
         const ssrModule = await import(resolveBuiltSsrModuleUrl());
         buildRenderContext = ssrModule.buildRenderContext;
       }
+
+      template = await applyRouteTemplate(template, templateTransform, req);
+      template = removeDevEntryScriptTags(template);
+      template = injectEntryScripts(
+        template,
+        renderEntryScripts(ssrManifest)
+      );
 
       const { element, preloadLinks, appState, statusCode } =
         await buildRenderContext(state, ssrManifest);
@@ -171,17 +235,24 @@ async function createServer() {
   };
 
   const router = express.Router();
-  router.get("/", (req, res) => renderRequest(buildHomeState(), req, res));
-  router.get("/hello", (req, res) =>
-    renderRequest(buildGreetingState(undefined), req, res)
+  routerConfig.routes.forEach(
+    (
+      { path: routePath, buildState, method, templatePath, templateTransform }
+    ) => {
+      const httpMethod = method ?? "get";
+      router[httpMethod](routePath, (req, res) =>
+        renderRequest(
+          buildState(req),
+          req,
+          res,
+          templatePath,
+          templateTransform
+        )
+      );
+    }
   );
-  router.get("/hello/:name", (req, res) =>
-    renderRequest(buildGreetingState(req.params.name), req, res)
-  );
-  router.get("/callout", (req, res) =>
-    renderRequest(buildCalloutState(), req, res)
-  );
-  router.use((req, res) => renderRequest(buildNotFoundState(), req, res));
+
+  router.use((req, res) => renderRequest(routerConfig.notFound(), req, res));
 
   app.use(router);
 

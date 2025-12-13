@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home | React Vite SSR</title>
+    <meta
+      name="description"
+      content="Home page template with a centered container and gradient background."
+    />
+    <style>
+      :root {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        color: #0f172a;
+        background: radial-gradient(circle at 10% 10%, #e0f2fe 0, #eff6ff 45%, #ffffff 100%);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: inherit;
+      }
+
+      #root {
+        width: min(960px, 100%);
+        margin: 0 auto;
+        padding: 3rem 1.25rem 4rem;
+        min-height: 100vh;
+        display: grid;
+        gap: 1.75rem;
+      }
+    </style>
+    <script
+      type="module"
+      src="/apps/webapp/src/entry-client.tsx"
+      data-entry="true"
+    ></script>
+    <!--entry-scripts-->
+    <!--preload-links-->
+  </head>
+  <body>
+    <div id="root"><!--app-html--></div>
+    <!--app-state-->
+  </body>
+</html>

@@ -1,8 +1,7 @@
 {
-  "name": "react-webpack5-ssr",
-  "version": "0.1.0",
+  "name": "react-vite-ssr",
+  "version": "0.0.1",
   "packageManager": "pnpm@10.24.0",
-  "private": true,
   "engines": {
     "pnpm": ">=10.24.0"
   },

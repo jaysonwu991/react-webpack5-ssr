@@ -1,9 +1,9 @@
-import {
-  fetchCalloutBannerProps,
-  fetchGreetingCardProps,
-  fetchHomeProps,
-} from "./componentData";
-import type { AppState, ComponentsPayload, RouteKey } from "@shared/types/appState";
+import type { ComponentDataLoaders } from "./componentData";
+import type {
+  AppState,
+  ComponentsPayload,
+  RouteKey,
+} from "@shared/types/appState";
 
 const buildState = (
   route: RouteKey,
@@ -13,17 +13,28 @@ const buildState = (
   components,
 });
 
-export const buildHomeState = (): AppState =>
-  buildState("home", fetchHomeProps());
+export const createRouteBuilders = (components: ComponentDataLoaders) => {
+  const buildHomeState = (): AppState =>
+    buildState("home", components.fetchHomeProps());
 
-export const buildGreetingState = (name?: string): AppState =>
-  buildState("greeting", fetchGreetingCardProps(name));
+  const buildGreetingState = (name?: string): AppState =>
+    buildState("greeting", components.fetchGreetingCardProps(name));
 
-export const buildCalloutState = (): AppState =>
-  buildState("callout", fetchCalloutBannerProps());
+  const buildCalloutState = (): AppState =>
+    buildState("callout", components.fetchCalloutBannerProps());
 
-export const buildNotFoundState = (): AppState =>
-  buildState("not-found", {
-    greetingCard: undefined,
-    calloutBanner: undefined,
-  });
+  const buildNotFoundState = (): AppState =>
+    buildState("not-found", {
+      greetingCard: undefined,
+      calloutBanner: undefined,
+    });
+
+  return {
+    buildHomeState,
+    buildGreetingState,
+    buildCalloutState,
+    buildNotFoundState,
+  };
+};
+
+export type RouteBuilders = ReturnType<typeof createRouteBuilders>;

@@ -3,6 +3,11 @@ import { hydrateRoot } from "react-dom/client";
 import { renderApp } from "./app/renderApp";
 import type { AppState } from "@shared/types/appState";
 
+// Import styles to ensure they're included in the build
+import "./app/RootApp.scss";
+import "./components/CalloutBanner/CalloutBanner.scss";
+import "./components/GreetingCard/GreetingCard.scss";
+
 const appContainer = document.getElementById("root");
 
 if (!appContainer) {

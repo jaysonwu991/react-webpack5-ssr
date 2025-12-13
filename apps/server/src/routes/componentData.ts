@@ -5,23 +5,50 @@ import type {
 import type { ComponentsPayload } from "@shared/types/appState";
 export type { ComponentsPayload };
 
-const DEFAULT_NAME = "Guest";
+export type ComponentDataConfig = {
+  greetingCard: {
+    defaultName: string;
+    homeName: string;
+  };
+  calloutBanner?: Record<string, never>;
+};
 
-export const fetchGreetingCardProps = (
-  name: string | undefined
-): ComponentsPayload => ({
-  greetingCard: buildGreetingCard(name ?? DEFAULT_NAME),
-});
+const defaultComponentConfig: ComponentDataConfig = {
+  greetingCard: {
+    defaultName: "Guest",
+    homeName: "Jayson",
+  },
+  calloutBanner: {},
+};
 
-export const fetchCalloutBannerProps = (): ComponentsPayload => ({
-  calloutBanner: buildCalloutBanner(),
-});
+export const createComponentData = (
+  config: ComponentDataConfig = defaultComponentConfig
+) => {
+  const buildGreetingCard = (name: string): GreetingCardData => ({ name });
+  const buildCalloutBanner = (): CalloutBannerData => ({});
 
-export const fetchHomeProps = (): ComponentsPayload => ({
-  ...fetchGreetingCardProps("Jayson"),
-  ...fetchCalloutBannerProps(),
-});
+  const fetchGreetingCardProps = (
+    name: string | undefined
+  ): ComponentsPayload => ({
+    greetingCard: buildGreetingCard(name ?? config.greetingCard.defaultName),
+  });
 
-const buildGreetingCard = (name: string): GreetingCardData => ({ name });
+  const fetchCalloutBannerProps = (): ComponentsPayload => ({
+    calloutBanner: buildCalloutBanner(),
+  });
 
-const buildCalloutBanner = (): CalloutBannerData => ({});
+  const fetchHomeProps = (): ComponentsPayload => ({
+    ...fetchGreetingCardProps(config.greetingCard.homeName),
+    ...fetchCalloutBannerProps(),
+  });
+
+  return {
+    fetchGreetingCardProps,
+    fetchCalloutBannerProps,
+    fetchHomeProps,
+  };
+};
+
+export type ComponentDataLoaders = ReturnType<typeof createComponentData>;
+
+export const componentData = createComponentData();

@@ -1,4 +1,4 @@
-# react-webpack5-ssr
+# react-vite-ssr
 
 Now powered by Vite for both dev (with HMR) and production SSR, organized with Nx + pnpm v10 (10.24+).
 
@@ -36,8 +36,10 @@ Visit http://localhost:3000 after running `dev` or `preview`.
 
 ## Route-driven component data
 
-- Express routes in `apps/server/src/routes/appRoutes.ts` prepare component props per page and return an `AppState`.
-- Shared data builders live in `apps/server/src/routes/componentData.ts` to keep fetch/prop logic colocated.
+- Express routes + default props are configured in `apps/server/src/routes/routeConfig.ts`, which wires the `AppState` builders into the Express router.
+- Component prop builders live in `apps/server/src/routes/componentData.ts` (they accept config, e.g. names via env vars `GREETING_DEFAULT_NAME` and `GREETING_HOME_NAME`).
+- Route configs can also define template transforms so each route gets custom `<title>`/meta content before the server injects `<!--app-state-->`/`<!--preload-links-->`.
+- Route configs may point at server-side templates (see `apps/server/templates/{home-page,greeting-page,callout-landing}.html`) so each route can ship a distinct HTML layout + styling.
 - Shared route state types (`AppState`, `RouteKey`) live in `libs/shared/src/types/appState.ts`.
 - SSR injects `window.__APP_STATE__` so the client hydrates the exact page + props the server rendered.
 

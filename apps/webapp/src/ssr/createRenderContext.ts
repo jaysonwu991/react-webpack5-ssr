@@ -1,17 +1,23 @@
 import { renderApp } from "@webapp/app/renderApp";
 import type { AppState } from "@shared/types/appState";
+import { CLIENT_ENTRY } from "@shared/constants/ssrEntry";
 
-export type ClientManifest = Record<string, string[]>;
+type ManifestEntry = {
+  file: string;
+  name?: string;
+  src?: string;
+  isEntry?: boolean;
+  css?: string[];
+  assets?: string[];
+};
 
-const CLIENT_ENTRY = "apps/webapp/src/entry-client.tsx";
+export type ClientManifest = Record<string, ManifestEntry>;
 
 export async function buildRenderContext(
   state: AppState,
   manifest?: ClientManifest
 ) {
-  const preloadLinks = manifest
-    ? renderPreloadLinks(manifest, CLIENT_ENTRY)
-    : "";
+  const preloadLinks = manifest ? renderPreloadLinks(manifest) : "";
 
   return {
     element: renderApp(state),
@@ -21,20 +27,40 @@ export async function buildRenderContext(
   };
 }
 
-function renderPreloadLinks(manifest: ClientManifest, entry: string) {
+function renderPreloadLinks(manifest: ClientManifest) {
   const seen = new Set<string>();
   let links = "";
 
-  const files = manifest[entry] ?? manifest[`/${entry}`] ?? [];
+  // Find the HTML entry point
+  const htmlEntry = manifest["index.html"];
+  if (!htmlEntry) return links;
 
-  for (const file of files) {
-    if (seen.has(file)) continue;
-    seen.add(file);
+  // Add the main JS file as modulepreload
+  if (htmlEntry.file && !seen.has(htmlEntry.file)) {
+    seen.add(htmlEntry.file);
+    links += `<link rel="modulepreload" crossorigin href="/${htmlEntry.file}">`;
+  }
 
-    if (file.endsWith(".js")) {
-      links += `<link rel="modulepreload" crossorigin href="${file}">`;
-    } else if (file.endsWith(".css")) {
-      links += `<link rel="stylesheet" href="${file}">`;
+  // Add CSS files as stylesheets
+  if (htmlEntry.css) {
+    for (const cssFile of htmlEntry.css) {
+      if (seen.has(cssFile)) continue;
+      seen.add(cssFile);
+      links += `<link rel="stylesheet" href="/${cssFile}">`;
+    }
+  }
+
+  // Add other assets if needed
+  if (htmlEntry.assets) {
+    for (const asset of htmlEntry.assets) {
+      if (seen.has(asset)) continue;
+      seen.add(asset);
+      // Determine asset type and add appropriate link
+      if (asset.endsWith(".css")) {
+        links += `<link rel="stylesheet" href="/${asset}">`;
+      } else if (asset.endsWith(".js")) {
+        links += `<link rel="modulepreload" crossorigin href="/${asset}">`;
+      }
     }
   }
 

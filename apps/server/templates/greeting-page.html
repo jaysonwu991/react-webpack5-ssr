@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Greeting | React Vite SSR</title>
+    <meta
+      name="description"
+      content="Greeting page template with a narrow layout and soft shadow."
+    />
+    <style>
+      :root {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #f8fafc;
+      }
+
+      .greeting-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 4rem 1.5rem;
+      }
+
+      #root {
+        width: min(600px, 100%);
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 2rem;
+        box-shadow: 0 25px 70px rgba(15, 23, 42, 0.1);
+      }
+    </style>
+    <script
+      type="module"
+      src="/apps/webapp/src/entry-client.tsx"
+      data-entry="true"
+    ></script>
+    <!--entry-scripts-->
+    <!--preload-links-->
+  </head>
+  <body>
+    <div class="greeting-shell">
+      <div id="root"><!--app-html--></div>
+    </div>
+    <!--app-state-->
+  </body>
+</html>
