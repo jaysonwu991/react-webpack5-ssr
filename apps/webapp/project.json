@@ -11,7 +11,7 @@
         "{workspaceRoot}/dist"
       ],
       "options": {
-        "command": "rm -rf dist && vite build && vite build --ssr apps/server/src/ssr/createRenderContext.tsx --outDir dist/server"
+        "command": "rm -rf dist && vite build && vite build --ssr apps/webapp/src/ssr/createRenderContext.ts --outDir dist/server"
       }
     }
   },

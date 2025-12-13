@@ -8,7 +8,7 @@ process.env.SASS_SILENCE_DEPRECATIONS = "legacy-js-api";
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: "dist/client",
+    outDir: "dist/webapp",
     ssrManifest: true,
     rollupOptions: {
       input: path.resolve(__dirname, "index.html"),

@@ -6,7 +6,7 @@ Now powered by Vite for both dev (with HMR) and production SSR, organized with N
 
 - Vite-powered dev/prod SSR running through a single Express server.
 - React 19 SSR + hydration (server renders HTML; client hydrates).
-- Server-controlled component visibility via data/props passed to the client.
+- Express routes prepare component props per page for SSR + hydration.
 - Nx workspace layout (`apps` + `libs`) with pnpm workspaces.
 
 ## Prereqs
@@ -20,26 +20,32 @@ Now powered by Vite for both dev (with HMR) and production SSR, organized with N
 ## Structure
 
 - `apps/webapp` — client entry (`src/entry-client.tsx`), root app, and UI components.
-- `apps/server` — Express server (`src/server.ts`) and SSR renderer (`src/ssr/createRenderContext.tsx`).
+- `apps/server` — Express server (`src/server.ts`).
+- `apps/webapp/src/ssr` — SSR renderer entry (`createRenderContext.ts`).
 - `libs/shared` — shared types such as `AppBootstrapData`.
-- `types/global.d.ts` — global declarations for browser globals like `window.INITIAL_DATA`.
+- `types/global.d.ts` — global declarations for browser globals like `window.__APP_STATE__`.
 - `docs/ssr.md` — end-to-end SSR flow, streaming, and hydration details.
 
 ## Scripts
 
 - `pnpm dev` — `nx serve server` (Express + Vite middleware for hot reloading).
-- `pnpm build` — `nx build webapp` (builds client assets into `dist/client` and SSR bundle into `dist/server/createRenderContext.*`).
+- `pnpm build` — `nx build webapp` (builds client assets into `dist/webapp` and SSR bundle into `dist/server/createRenderContext.*`).
 - `pnpm preview` — `nx run server:preview` (production Express server).
 
 Visit http://localhost:3000 after running `dev` or `preview`.
 
-## Component visibility from server data
+## Route-driven component data
 
-- The server builds `AppBootstrapData.components`; any component omitted here is not rendered on the server or client.
-- Example (see `apps/server/src/server.ts`):
-  - Provide `greetingCard: { name: "Jayson" }` to show the GreetingCard.
-  - Provide `calloutBanner: {}` to show the CalloutBanner.
-- `RootApp` renders components conditionally based on the presence of these props, keeping SSR output and hydration in sync.
+- Express routes in `apps/server/src/routes/appRoutes.ts` prepare component props per page and return an `AppState`.
+- Shared data builders live in `apps/server/src/routes/componentData.ts` to keep fetch/prop logic colocated.
+- Shared route state types (`AppState`, `RouteKey`) live in `libs/shared/src/types/appState.ts`.
+- SSR injects `window.__APP_STATE__` so the client hydrates the exact page + props the server rendered.
+
+### Examples
+
+- Home route (`/`) uses `buildHomeState()` → GreetingCard + CalloutBanner.
+- Greeting-only routes (`/hello` and `/hello/:name`) use `buildGreetingState(name)`.
+- Callout-only route (`/callout`) uses `buildCalloutState()`.
 
 ## SSR docs
 

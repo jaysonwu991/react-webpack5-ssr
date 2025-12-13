@@ -1,15 +1,12 @@
-import { createElement } from "react";
-
-import RootApp from "@webapp/app/RootApp";
-import type { AppBootstrapData } from "@shared/types/appData";
+import { renderApp } from "@webapp/app/renderApp";
+import type { AppState } from "@shared/types/appState";
 
 export type ClientManifest = Record<string, string[]>;
 
 const CLIENT_ENTRY = "apps/webapp/src/entry-client.tsx";
 
-export function buildRenderContext(
-  _url: string,
-  bootstrapData: AppBootstrapData,
+export async function buildRenderContext(
+  state: AppState,
   manifest?: ClientManifest
 ) {
   const preloadLinks = manifest
@@ -17,7 +14,9 @@ export function buildRenderContext(
     : "";
 
   return {
-    element: createElement(RootApp, bootstrapData.components),
+    element: renderApp(state),
+    appState: state,
+    statusCode: state.route === "not-found" ? 404 : 200,
     preloadLinks,
   };
 }

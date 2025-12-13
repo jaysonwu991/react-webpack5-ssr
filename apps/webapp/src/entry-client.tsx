@@ -1,14 +1,18 @@
 import { hydrateRoot } from "react-dom/client";
 
-import RootApp from "./app/RootApp";
-import type { AppBootstrapData } from "@shared/types/appData";
+import { renderApp } from "./app/renderApp";
+import type { AppState } from "@shared/types/appState";
 
 const appContainer = document.getElementById("root");
-const fallbackData: AppBootstrapData = { components: {} };
-const initialData: AppBootstrapData = window.INITIAL_DATA ?? fallbackData;
 
 if (!appContainer) {
   throw new Error("Root container #root was not found in the document.");
 }
 
-hydrateRoot(appContainer, <RootApp {...initialData.components} />);
+const appState: AppState | undefined = window.__APP_STATE__;
+
+if (!appState) {
+  throw new Error("App state was missing from the page.");
+}
+
+hydrateRoot(appContainer, renderApp(appState));

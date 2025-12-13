@@ -1,9 +1,9 @@
-import type { AppBootstrapData } from "../libs/shared/src/types/appData";
+import type { AppState } from "@shared/types/appState";
 
 export {};
 
 declare global {
   interface Window {
-    INITIAL_DATA?: AppBootstrapData;
+    __APP_STATE__?: AppState;
   }
 }

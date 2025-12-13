@@ -3,5 +3,6 @@ packages:
   - libs/*
 
 ignoredBuiltDependencies:
+  - '@parcel/watcher'
   - esbuild
   - nx

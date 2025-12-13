@@ -9,16 +9,21 @@ import { renderToPipeableStream } from "react-dom/server";
 import type { ReactElement } from "react";
 import { Transform } from "stream";
 
-import type { AppBootstrapData } from "@shared/types/appData";
-import type { ClientManifest } from "./ssr/createRenderContext";
+import {
+  buildCalloutState,
+  buildGreetingState,
+  buildHomeState,
+  buildNotFoundState,
+} from "./routes/appRoutes";
+import type { AppState } from "@shared/types/appState";
 
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 const SSR_ENTRY_BASENAME = "createRenderContext";
-const SSR_ENTRY_SOURCE = "/apps/server/src/ssr/createRenderContext.tsx";
+const SSR_ENTRY_SOURCE = "/apps/webapp/src/ssr/createRenderContext.ts";
 const SSR_MANIFEST_LOCATIONS = [
-  "dist/client/.vite/ssr-manifest.json",
-  "dist/client/ssr-manifest.json",
+  "dist/webapp/.vite/ssr-manifest.json",
+  "dist/webapp/ssr-manifest.json",
 ];
 const resolveFromRoot = (...paths: string[]) =>
   path.resolve(process.cwd(), ...paths);
@@ -33,6 +38,8 @@ const resolveBuiltSsrModuleUrl = () => {
     resolveFromRoot(`dist/server/${SSR_ENTRY_BASENAME}.js`)
   ).href;
 };
+
+type ClientManifest = Record<string, string[]>;
 
 const readClientManifest = (): ClientManifest | undefined => {
   for (const manifestPath of SSR_MANIFEST_LOCATIONS) {
@@ -66,7 +73,7 @@ async function createServer() {
     app.use(vite.middlewares);
   } else {
     productionTemplate = fs.readFileSync(
-      resolveFromRoot("dist/client/index.html"),
+      resolveFromRoot("dist/webapp/index.html"),
       "utf-8"
     );
 
@@ -74,33 +81,27 @@ async function createServer() {
 
     app.use(
       "/assets",
-      express.static(resolveFromRoot("dist/client/assets"), { index: false })
+      express.static(resolveFromRoot("dist/webapp/assets"), { index: false })
     );
-    app.use(express.static(resolveFromRoot("dist/client"), { index: false }));
+    app.use(express.static(resolveFromRoot("dist/webapp"), { index: false }));
   }
 
-  // Catch-all handler for SSR; Express 5 no longer accepts "*" with path-to-regexp v8.
-  app.use(async (req, res) => {
+  type RenderContext = {
+    element: ReactElement;
+    preloadLinks: string;
+    appState: AppState;
+    statusCode: number;
+  };
+  type RenderContextBuilder = (
+    state: AppState,
+    manifest?: ClientManifest
+  ) => Promise<RenderContext> | RenderContext;
+
+  const renderRequest = async (state: AppState, req: express.Request, res: express.Response) => {
     const requestedUrl = req.originalUrl;
 
     try {
-      const userName = "Jayson";
-      const shouldShowCalloutBanner = true;
-      const bootstrapData: AppBootstrapData = {
-        components: {
-          ...(userName ? { greetingCard: { name: userName } } : {}),
-          ...(shouldShowCalloutBanner ? { calloutBanner: {} } : {}),
-        },
-      };
-
       let template: string;
-      type RenderContext = { element: ReactElement; preloadLinks: string };
-      type RenderContextBuilder = (
-        url: string,
-        data: AppBootstrapData,
-        manifest?: ClientManifest
-      ) => Promise<RenderContext> | RenderContext;
-
       let buildRenderContext: RenderContextBuilder;
 
       if (!isProduction) {
@@ -118,24 +119,21 @@ async function createServer() {
         buildRenderContext = ssrModule.buildRenderContext;
       }
 
-      const { element, preloadLinks } = await buildRenderContext(
-        requestedUrl,
-        bootstrapData,
-        ssrManifest
-      );
+      const { element, preloadLinks, appState, statusCode } =
+        await buildRenderContext(state, ssrManifest);
 
       const templateWithState = template
         .replace("<!--preload-links-->", preloadLinks)
         .replace(
           "<!--app-state-->",
-          `<script>window.INITIAL_DATA=${serialize(bootstrapData, {
+          `<script>window.__APP_STATE__=${serialize(appState, {
             isJSON: true,
           })}</script>`
         );
 
       const [htmlStart, htmlEnd] = templateWithState.split("<!--app-html-->");
 
-      res.status(200).setHeader("Content-Type", "text/html");
+      res.status(statusCode).setHeader("Content-Type", "text/html");
 
       const { pipe } = renderToPipeableStream(element, {
         onShellReady() {
@@ -170,7 +168,22 @@ async function createServer() {
       console.error("Error during SSR:", err);
       res.status(500).end((err as Error).stack);
     }
-  });
+  };
+
+  const router = express.Router();
+  router.get("/", (req, res) => renderRequest(buildHomeState(), req, res));
+  router.get("/hello", (req, res) =>
+    renderRequest(buildGreetingState(undefined), req, res)
+  );
+  router.get("/hello/:name", (req, res) =>
+    renderRequest(buildGreetingState(req.params.name), req, res)
+  );
+  router.get("/callout", (req, res) =>
+    renderRequest(buildCalloutState(), req, res)
+  );
+  router.use((req, res) => renderRequest(buildNotFoundState(), req, res));
+
+  app.use(router);
 
   return { app };
 }
