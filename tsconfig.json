@@ -23,13 +23,25 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "paths": {
+      "@webapp/*": [
+        "apps/webapp/src/*"
+      ],
+      "@server/*": [
+        "apps/server/src/*"
+      ],
+      "@shared/*": [
+        "libs/shared/src/*"
+      ]
+    },
     "typeRoots": [
       "node_modules/@types",
       "types"
     ]
   },
   "include": [
-    "packages",
+    "apps",
+    "libs",
     "types"
   ],
   "exclude": [
