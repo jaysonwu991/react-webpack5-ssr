@@ -1,0 +1,67 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.greeting-component {
+  @include card($spacing-3xl);
+  @include flex-center(column);
+
+  animation: fade-in-up 0.6s ease-out;
+  gap: $spacing-xl;
+  max-width: 600px;
+  text-align: center;
+  width: 100%;
+
+  .greeting-title {
+    @include gradient-text;
+
+    font-size: $font-size-4xl;
+    font-weight: $font-weight-bold;
+    line-height: 1.2;
+    margin: 0;
+
+    @media (width <= 768px) {
+      font-size: $font-size-3xl;
+    }
+  }
+
+  .greeting-text {
+    color: $color-text-secondary;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-medium;
+    line-height: 1.6;
+  }
+
+  .greeting-button {
+    @include button(primary);
+
+    animation: pulse 2s ease-in-out infinite;
+    margin-top: $spacing-md;
+
+    &:hover {
+      animation: none;
+    }
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(99 102 241 / 70%);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgb(99 102 241 / 0%);
+  }
+}

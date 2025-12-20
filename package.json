@@ -3,18 +3,19 @@
   "version": "0.1.0",
   "description": "A server-side rendered React application with Falcon-inspired architecture using Nx monorepo",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "nx": "nx",
     "dev": "nx serve server",
     "build": "nx build webapp",
     "preview": "nx run server:preview",
-    "lint": "npx nx run-many -t lint --all",
-    "lint:fix": "npx nx run-many -t lint:fix --all",
-    "lint:css": "stylelint \"**/*.{css,scss}\" --cache",
-    "lint:css:fix": "stylelint \"**/*.{css,scss}\" --fix --cache",
-    "typecheck": "npx nx run-many -t typecheck --all",
-    "clean": "rm -rf dist node_modules/.cache"
+    "lint": "nx run-many -t lint --all",
+    "lint:fix": "nx run-many -t lint:fix --all",
+    "lint:css": "stylelint \"apps/**/*.{css,scss}\" --cache",
+    "lint:css:fix": "stylelint \"apps/**/*.{css,scss}\" --fix --cache",
+    "typecheck": "nx run-many -t typecheck --all",
+    "clean": "rm -rf dist node_modules/.cache .nx"
   },
   "dependencies": {
     "compression": "^1.8.1",
@@ -24,24 +25,27 @@
     "serialize-javascript": "^7.0.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/compression": "^1.8.1",
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/serialize-javascript": "^5.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
     "@vitejs/plugin-react": "^5.1.2",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "nx": "^22.2.3",
     "sass": "^1.96.0",
+    "stylelint": "^16.26.1",
+    "stylelint-config-standard-scss": "^16.0.0",
+    "stylelint-scss": "^6.13.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.7"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [

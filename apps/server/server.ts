@@ -9,14 +9,14 @@ import { renderToPipeableStream } from "react-dom/server";
 import type { ReactElement } from "react";
 import { Transform } from "stream";
 
-import { routerConfig, type TemplateTransform } from "./routes/routeConfig";
+import { routerConfig, type TemplateTransform } from "./routes";
 import { CLIENT_ENTRY } from "@shared/constants/ssrEntry";
-import type { AppState } from "@shared/types/appState";
+import type { AppState } from "@shared";
 
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === "production";
-const SSR_ENTRY_BASENAME = "createRenderContext";
-const SSR_ENTRY_SOURCE = "/apps/webapp/src/ssr/createRenderContext.ts";
+const SSR_ENTRY_BASENAME = "render";
+const SSR_ENTRY_SOURCE = "/apps/webapp/render.tsx";
 const CLIENT_MANIFEST_LOCATIONS = [
   "dist/webapp/.vite/manifest.json",
   "dist/webapp/manifest.json",
@@ -70,10 +70,15 @@ async function createServer() {
   const DEFAULT_DEV_TEMPLATE = "index.html";
   const DEFAULT_PROD_TEMPLATE = "dist/webapp/index.html";
 
-  const resolveTemplateFilePath = (override?: string) =>
-    resolveFromRoot(
-      override ?? (isProduction ? DEFAULT_PROD_TEMPLATE : DEFAULT_DEV_TEMPLATE)
+  const resolveTemplateFilePath = (override?: string) => {
+    if (override) {
+      // Custom templates are in apps/server/templates/
+      return resolveFromRoot('apps/server/templates', override);
+    }
+    return resolveFromRoot(
+      isProduction ? DEFAULT_PROD_TEMPLATE : DEFAULT_DEV_TEMPLATE
     );
+  };
 
   if (!isProduction) {
     const { createServer: createViteServer } = await import("vite");

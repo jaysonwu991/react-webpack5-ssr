@@ -2,10 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "lib": [
-      "dom",
-      "esnext",
-    ],
+    "lib": ["dom", "esnext"],
     "strict": true,
     "jsx": "react-jsx",
     "declaration": false,
@@ -24,29 +21,11 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@webapp/*": [
-        "apps/webapp/src/*"
-      ],
-      "@server/*": [
-        "apps/server/src/*"
-      ],
-      "@shared/*": [
-        "libs/shared/src/*"
-      ]
+      "@shared": ["libs/shared"],
+      "@shared/*": ["libs/shared/*"]
     },
-    "typeRoots": [
-      "node_modules/@types",
-      "types"
-    ]
+    "types": ["vite/client"]
   },
-  "include": [
-    "apps",
-    "libs",
-    "types"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.js",
-    "**/**/*.js"
-  ],
+  "include": ["apps", "libs", "index.html"],
+  "exclude": ["node_modules", "dist", "**/*.js"]
 }

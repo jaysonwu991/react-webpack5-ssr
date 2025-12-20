@@ -1,6 +1,6 @@
 # SSR implementation
 
-How server rendering works end-to-end and how route loaders feed props into components.
+How server rendering works end-to-end and how route configs feed props into components.
 
 ## Graph (high level)
 
@@ -10,8 +10,8 @@ flowchart TD
 
   subgraph Server
     Router[Express router\n(server.ts)]
-    BuildState[Build AppState\n(routes/appRoutes.ts + componentData.ts)]
-    Render[buildRenderContext\n(webapp/src/ssr/createRenderContext.ts)]
+    BuildState[Build AppState\n(routes.ts)]
+    Render[buildRenderContext\n(webapp/render.tsx)]
     Stream[renderToPipeableStream]
   end
 
@@ -19,14 +19,14 @@ flowchart TD
 
   subgraph Assets
     Template[Index template\n(index.html or dist/webapp/index.html)]
-    Manifest[SSR manifest\n(dist/webapp/ssr-manifest.json)]
+    Manifest[SSR manifest\n(dist/webapp/.vite/ssr-manifest.json)]
   end
 
   Template --> Render
   Manifest --> Render
 
   subgraph Client
-    Hydrate[entry-client.tsx\nrenderApp(state)]
+    Hydrate[index.tsx\nhydrateRoot with App]
   end
 
   Response --> Hydrate
@@ -40,10 +40,13 @@ flowchart TD
 
 ## Request lifecycle
 
-- Requests flow through the Express routes defined in `apps/server/src/server.ts`, which are configured from `apps/server/src/routes/routeConfig.ts` and build `AppState` objects using helpers in `apps/server/src/routes/appRoutes.ts`.
-- The server chooses the HTML template: dev uses Vite's `transformIndexHtml`; prod reads `dist/webapp/index.html`.
-- Loads `buildRenderContext` from `apps/webapp/src/ssr/createRenderContext.ts` (bundled to `dist/server/createRenderContext.*` in prod).
-- Each route builds an `AppState` (route key + component props) using helpers in `apps/server/src/routes/componentData.ts` and passes it to `buildRenderContext`, which renders `<RootApp>` via `renderApp` and emits preload links from the SSR manifest when available.
+- Requests flow through the Express routes defined in [apps/server/server.ts](apps/server/server.ts), which are configured from [apps/server/routes.ts](apps/server/routes.ts) and build `AppState` objects using the inline `buildState` functions.
+- The server chooses the HTML template:
+  - Dev uses [index.html](index.html) transformed by Vite's `transformIndexHtml`
+  - Prod reads [dist/webapp/index.html](dist/webapp/index.html)
+  - Custom route templates can be specified in route configs (e.g., [apps/server/templates/home-page.html](apps/server/templates/home-page.html))
+- Loads `buildRenderContext` from [apps/webapp/render.tsx](apps/webapp/render.tsx) (bundled to `dist/server/render.*` in prod).
+- Each route builds an `AppState` (route key + component props) using the `buildState` function defined in the route config and passes it to `buildRenderContext`, which renders the component tree via `renderApp` and emits preload links from the SSR manifest when available.
 - The server injects:
   - `<!--preload-links-->` → modulepreload/stylesheet tags for the client entry.
   - `<!--app-state-->` → `<script>window.__APP_STATE__ = ...</script>` containing the serialized `AppState`.
@@ -51,29 +54,29 @@ flowchart TD
 
 ## Client hydration
 
-- `apps/webapp/src/entry-client.tsx` reads `window.__APP_STATE__` and hydrates `renderApp(state)`.
-- `RootApp` is the shared layout; it receives `activeRoute` for nav highlighting and renders whatever components are present in the state.
+- [apps/webapp/index.tsx](apps/webapp/index.tsx) reads `window.__APP_STATE__` and hydrates the `App` component with the component data.
+- [apps/webapp/App.tsx](apps/webapp/App.tsx) is the root component that conditionally renders Greeting and Content components based on what's present in the state.
 
 ## Controlling component visibility
 
-- Express routes return component props using helpers in `apps/server/src/routes/componentData.ts`, wired up through `apps/server/src/routes/routeConfig.ts` (override defaults with `GREETING_DEFAULT_NAME`/`GREETING_HOME_NAME` if desired).
-- Routes can also provide optional template transforms in `apps/server/src/routes/routeConfig.ts` so the server can tweak `<title>`/meta content per route before streaming HTML to the client.
-- The same config also accepts `templatePath` so you can use templates (e.g., `apps/server/templates/home-page.html`, `greeting-page.html`, `callout-landing.html`) for a specific route without touching the client entry.
+- Express routes return component props using the `buildState` functions defined inline in [apps/server/routes.ts](apps/server/routes.ts).
+- Routes can also provide optional template paths and template transforms in [apps/server/routes.ts](apps/server/routes.ts) so the server can use custom HTML templates (from [apps/server/templates/](apps/server/templates/)) or tweak `<title>`/meta content per route before streaming HTML to the client.
 - Examples:
-  - Home route (`/`) uses `fetchHomeProps()` → GreetingCard + CalloutBanner.
-  - Greeting-only routes (`/hello` and `/hello/:name`) use `fetchGreetingCardProps(params.name)`.
-  - Callout-only route (`/callout`) uses `fetchCalloutBannerProps()`.
-- Each page renders only the components present in the route response, keeping SSR + hydration aligned per route.
+  - Home route (`/`) uses `buildHomePageState()` → Greeting + Content components with [home-page.html](apps/server/templates/home-page.html) template.
+  - Greeting-only routes (`/hello` and `/hello/:name`) use `buildGreetingPageState(req)` → Greeting component with custom name from URL params using [greeting-page.html](apps/server/templates/greeting-page.html) template.
+  - Content-only route (`/content`) uses `buildContentPageState()` → Content component only with [content-page.html](apps/server/templates/content-page.html) template.
+- Each page renders only the components present in the route response, keeping SSR and hydration aligned per route.
 
 ## Adding a new component
 
-- Extend `AppBootstrapData["components"]` with the new component's props in `libs/shared/src/types/appData.ts`.
-- Add a data builder in `apps/server/src/routes/componentData.ts`, return it from the appropriate Express route in `apps/server/src/routes/appRoutes.ts`, and render it inside `apps/webapp/src/app/renderApp.tsx`.
-- If you add new route keys or component payloads, extend `libs/shared/src/types/appState.ts` so both server and client share the shape.
+- Extend `RouteComponentData` with the new component's props in [libs/shared/types.ts](libs/shared/types.ts).
+- Add a new component to [apps/webapp/components/](apps/webapp/components/).
+- Update the route's `buildState` function in [apps/server/routes.ts](apps/server/routes.ts) to include the new component's props, and render it inside [apps/webapp/App.tsx](apps/webapp/App.tsx).
+- If you add new route keys or component payloads, extend the types in [libs/shared/types.ts](libs/shared/types.ts) so both server and client share the shape.
 
 ## Builds and manifest usage
 
 - `pnpm build` (aka `nx build webapp`) outputs:
-  - Client bundle in `dist/webapp` plus an SSR manifest (`dist/webapp/ssr-manifest.json`).
-  - Server bundle in `dist/server/createRenderContext.*`.
-- The SSR manifest is used to emit preload links for the client entry to warm the browser cache before hydration.
+  - Client bundle in [dist/webapp](dist/webapp) plus a manifest ([dist/webapp/.vite/manifest.json](dist/webapp/.vite/manifest.json)) and SSR manifest ([dist/webapp/.vite/ssr-manifest.json](dist/webapp/.vite/ssr-manifest.json)).
+  - Server SSR bundle in [dist/server/render.*](dist/server/render.*) (compiled from [apps/webapp/render.tsx](apps/webapp/render.tsx)).
+- The client manifest is used to emit preload links for the client entry to warm the browser cache before hydration.

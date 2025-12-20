@@ -12,7 +12,7 @@
         "cacheableOperations": [
           "build",
           "lint",
-          "test"
+          "typecheck"
         ]
       }
     }
@@ -26,9 +26,5 @@
     "serve": {
       "cache": false
     }
-  },
-  "projects": {
-    "webapp": "apps/webapp",
-    "server": "apps/server"
   }
 }

@@ -44,30 +44,40 @@ Run `pnpm install` (with pnpm v10.24+) to refresh the lockfile and install Nx lo
 react-vite-ssr/
 ├── apps/
 │   ├── server/          # Express SSR server
-│   │   ├── src/
-│   │   │   ├── server.ts              # Main server entry
-│   │   │   └── routes/
-│   │   │       ├── routeConfig.ts     # Route definitions & config
-│   │   │       ├── appRoutes.ts       # Route state builders
-│   │   │       └── componentData.ts   # Component data loaders
-│   │   └── templates/                 # Per-route HTML templates
+│   │   ├── server.ts                  # Main server entry
+│   │   ├── routes.ts                  # Route definitions, state builders & config
+│   │   ├── templates/                 # HTML templates
+│   │   │   ├── home-page.html         # Home page template
+│   │   │   ├── greeting-page.html     # Greeting page template
+│   │   │   └── content-page.html      # Content page template
+│   │   └── project.json               # Nx project configuration
 │   └── webapp/          # React client application
-│       ├── src/
-│       │   ├── entry-client.tsx       # Client hydration entry
-│       │   ├── App.tsx                # Root component
-│       │   ├── components/            # UI components
-│       │   └── ssr/
-│       │       └── createRenderContext.ts  # SSR renderer
-│       └── vite.config.ts
+│       ├── index.tsx                  # Client hydration entry
+│       ├── App.tsx                    # Root component
+│       ├── render.tsx                 # SSR renderer with buildRenderContext
+│       ├── components/                # UI components
+│       │   ├── Greeting/              # Greeting component
+│       │   │   ├── GreetingComponent.tsx
+│       │   │   └── GreetingComponent.scss
+│       │   └── Content/               # Content component
+│       │       ├── ContentComponent.tsx
+│       │       └── ContentComponent.scss
+│       ├── styles/                    # Global styles
+│       │   └── global.scss
+│       └── project.json               # Nx project configuration
 ├── libs/
 │   └── shared/          # Shared types and utilities
-│       └── src/types/
-│           ├── appState.ts            # AppState, RouteKey types
-│           └── appData.ts             # Component data types
-├── types/
-│   └── global.d.ts      # Global declarations (window.__APP_STATE__)
+│       ├── types.ts                   # Shared TypeScript types
+│       ├── constants/
+│       │   └── ssrEntry.ts            # SSR entry constants
+│       ├── index.ts                   # Public API exports
+│       └── package.json               # Package configuration
 ├── docs/
-│   └── ssr.md           # End-to-end SSR flow documentation
+│   ├── ssr.md                         # End-to-end SSR flow documentation
+│   └── webpack-to-vite-migration.md   # Webpack to Vite migration guide
+├── index.html           # HTML entry point for Vite (dev mode)
+├── vite.config.ts       # Vite configuration
+├── tsconfig.json        # TypeScript configuration
 ├── nx.json              # Nx workspace configuration
 ├── pnpm-workspace.yaml  # pnpm workspace configuration
 └── package.json         # Root package.json with scripts
@@ -77,13 +87,14 @@ react-vite-ssr/
 
 - ✅ Server-side rendering (SSR) with React 19
 - ✅ Route-based configuration system (Falcon-inspired)
-- ✅ Per-route HTML templates with custom template transforms
+- ✅ Centralized route configs with state builders
 - ✅ Typed state management with shared types
 - ✅ Vite-powered HMR in development
 - ✅ Production SSR with Vite SSR bundle
 - ✅ Nx monorepo structure
 - ✅ pnpm workspace management
 - ✅ TypeScript throughout
+- ✅ ESLint and Stylelint for code quality
 
 ## Available Scripts
 
@@ -92,8 +103,10 @@ react-vite-ssr/
 | `pnpm dev` | Start development server with HMR (Express + Vite middleware) |
 | `pnpm build` | Build client assets and SSR bundle for production |
 | `pnpm preview` | Run production Express server |
-| `pnpm lint` | Lint all projects |
-| `pnpm lint:fix` | Auto-fix linting issues |
+| `pnpm lint` | Lint all projects with ESLint |
+| `pnpm lint:fix` | Auto-fix ESLint issues |
+| `pnpm lint:css` | Lint CSS/SCSS files with Stylelint |
+| `pnpm lint:css:fix` | Auto-fix CSS/SCSS issues |
 | `pnpm typecheck` | Run TypeScript type checking |
 | `pnpm clean` | Clean build artifacts and cache |
 
@@ -101,25 +114,27 @@ react-vite-ssr/
 
 | URL | Description |
 |-----|-------------|
-| `/` | Home page with GreetingCard + CalloutBanner components |
+| `/` | Home page with Greeting + Content components |
 | `/hello` | Default greeting page |
-| `/hello/:name` | Personalized greeting with dynamic name |
-| `/callout` | Callout-only page with custom template |
+| `/hello/:name` | Personalized greeting with dynamic name parameter |
+| `/content` | Content component demonstration page |
 
 ## Route-driven Component Data
 
-- Express routes + default props are configured in [apps/server/src/routes/routeConfig.ts](apps/server/src/routes/routeConfig.ts), which wires the `AppState` builders into the Express router
-- Component prop builders live in [apps/server/src/routes/componentData.ts](apps/server/src/routes/componentData.ts) (they accept config, e.g. names via env vars `GREETING_DEFAULT_NAME` and `GREETING_HOME_NAME`)
-- Route configs can also define template transforms so each route gets custom `<title>`/meta content before the server injects `<!--app-state-->`/`<!--preload-links-->`
-- Route configs may point at server-side templates (see `apps/server/templates/{home-page,greeting-page,callout-landing}.html`) so each route can ship a distinct HTML layout + styling
-- Shared route state types (`AppState`, `RouteKey`) live in [libs/shared/src/types/appState.ts](libs/shared/src/types/appState.ts)
-- SSR injects `window.__APP_STATE__` so the client hydrates the exact page + props the server rendered
+- Express routes and component state builders are configured in [apps/server/routes.ts](apps/server/routes.ts), which defines the `AppState` for each route
+- Each route configuration includes:
+  - URL pattern (Express format)
+  - `buildState` function that creates component props from the request
+  - Optional template path (custom HTML templates in [apps/server/templates/](apps/server/templates/))
+  - Optional template transforms for custom SEO/meta injection
+- Shared route state types (`AppState`, `RouteComponentData`) live in [libs/shared/types.ts](libs/shared/types.ts)
+- SSR injects `window.__APP_STATE__` so the client hydrates the exact page and props the server rendered
 
 ### Examples
 
-- Home route (`/`) uses `buildHomeState()` → GreetingCard + CalloutBanner
-- Greeting-only routes (`/hello` and `/hello/:name`) use `buildGreetingState(name)`
-- Callout-only route (`/callout`) uses `buildCalloutState()`
+- Home route (`/`) uses `buildHomePageState()` → Greeting + Content components with [home-page.html](apps/server/templates/home-page.html) template
+- Greeting-only routes (`/hello` and `/hello/:name`) use `buildGreetingPageState(req)` → Greeting component with custom name using [greeting-page.html](apps/server/templates/greeting-page.html) template
+- Content-only route (`/content`) uses `buildContentPageState()` → Content component only with [content-page.html](apps/server/templates/content-page.html) template
 
 ## Technology Stack
 
@@ -135,11 +150,11 @@ react-vite-ssr/
 
 This project implements key Falcon patterns:
 
-1. **Route-based configuration** - Centralized route configs with state builders ([apps/server/src/routes/routeConfig.ts](apps/server/src/routes/routeConfig.ts))
-2. **Per-route templates** - Customizable HTML templates for different pages with template transforms
-3. **Typed state management** - Shared types between server and client ([libs/shared/src/types/](libs/shared/src/types/))
-4. **Component data builders** - Server-side data preparation ([apps/server/src/routes/componentData.ts](apps/server/src/routes/componentData.ts))
-5. **Monorepo structure** - Nx workspace with apps and libs
+1. **Route-based configuration** - Centralized route configs with inline state builders in [apps/server/routes.ts](apps/server/routes.ts)
+2. **Typed state management** - Shared types between server and client ([libs/shared/types.ts](libs/shared/types.ts))
+3. **Component data builders** - Server-side data preparation functions in route configs
+4. **Monorepo structure** - Nx workspace with apps and libs
+5. **SSR with hydration** - Server renders HTML ([apps/webapp/render.tsx](apps/webapp/render.tsx)), client hydrates with exact same state ([apps/webapp/index.tsx](apps/webapp/index.tsx))
 
 ## SSR Documentation
 

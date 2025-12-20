@@ -1,6 +1,6 @@
-import { renderApp } from "@webapp/app/renderApp";
-import type { AppState } from "@shared/types/appState";
-import { CLIENT_ENTRY } from "@shared/constants/ssrEntry";
+import type { ReactElement } from 'react';
+import type { AppState } from '@shared';
+import App from './App';
 
 type ManifestEntry = {
   file: string;
@@ -13,6 +13,17 @@ type ManifestEntry = {
 
 export type ClientManifest = Record<string, ManifestEntry>;
 
+/**
+ * Server-side render function
+ * Creates React element from app state
+ */
+export function renderApp(state: AppState): ReactElement {
+  return <App {...state.components} />;
+}
+
+/**
+ * Build render context with preload links and app state
+ */
 export async function buildRenderContext(
   state: AppState,
   manifest?: ClientManifest

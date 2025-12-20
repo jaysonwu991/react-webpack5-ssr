@@ -1,4 +1,4 @@
-import type { AppState } from "@shared/types/appState";
+import type { AppState } from "@shared";
 
 export {};
 
