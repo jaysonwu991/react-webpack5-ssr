@@ -1,0 +1,67 @@
+@use './variables' as *;
+
+// Flexbox Centering Mixin
+@mixin flex-center($direction: row) {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  @if $direction != row {
+    flex-direction: $direction;
+  }
+}
+
+// Card Mixin
+@mixin card($padding: $spacing-xl) {
+  background: $gradient-surface;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: $radius-xl;
+  box-shadow: $shadow-xl;
+  padding: $padding;
+  transition: all $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-2xl, $shadow-glow;
+    transform: translateY(-4px);
+  }
+}
+
+// Button Mixin
+@mixin button($variant: primary) {
+  border: none;
+  border-radius: $radius-lg;
+  cursor: pointer;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  padding: $spacing-md $spacing-xl;
+  transition: all $transition-base;
+
+  @if $variant == primary {
+    background: $gradient-primary;
+    color: $color-text-primary;
+
+    &:hover {
+      box-shadow: $shadow-glow;
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.98);
+    }
+  }
+}
+
+// Gradient Text
+@mixin gradient-text {
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+// Animation keyframes
+@mixin keyframes($name) {
+  @keyframes #{$name} {
+    @content;
+  }
+}

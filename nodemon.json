@@ -1,0 +1,7 @@
+{
+  "watch": ["apps/server/src", "libs/shared/src", "apps/webapp/src", "config/webpack.webapp.dev.ts", ".babelrc.js", "babel-register.js"],
+  "ext": "ts,tsx,js,jsx",
+  "ignore": ["**/*.test.ts", "**/*.spec.ts", "dist/**"],
+  "exec": "node -r ./babel-register.js apps/server/src/dev-server.ts",
+  "delay": "1000"
+}

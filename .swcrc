@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/swcrc",
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": false,
+      "decorators": true
+    },
+    "target": "es2020",
+    "transform": {
+      "decoratorMetadata": true
+    },
+    "baseUrl": "."
+  },
+  "module": {
+    "type": "commonjs",
+    "strict": true
+  }
+}

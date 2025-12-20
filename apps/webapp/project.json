@@ -1,0 +1,40 @@
+{
+  "name": "webapp",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/webapp/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/webapp",
+        "index": "apps/webapp/src/index.html",
+        "main": "apps/webapp/src/index.tsx",
+        "tsConfig": "apps/webapp/tsconfig.app.json",
+        "webpackConfig": "config/webpack.webapp.prod.ts"
+      },
+      "configurations": {
+        "development": {
+          "webpackConfig": "config/webpack.webapp.dev.ts"
+        },
+        "production": {
+          "webpackConfig": "config/webpack.webapp.prod.ts"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/webapp/**/*.{ts,tsx}"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p apps/webapp/tsconfig.app.json"
+      }
+    }
+  }
+}

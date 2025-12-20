@@ -23,18 +23,27 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "paths": {
+      "@react-ssr-falcon/shared": ["libs/shared/src/index.ts"]
+    },
     "typeRoots": [
       "node_modules/@types",
       "types"
     ]
   },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  },
   "include": [
+    "apps",
+    "libs",
     "packages",
-    "types"
+    "types",
+    "config"
   ],
   "exclude": [
     "node_modules",
-    "**/*.js",
-    "**/**/*.js"
+    "dist"
   ],
 }

@@ -1,6 +1,6 @@
-# Falcon SSR Demo
+# Falcon SSR Demo - Project Overview
 
-A server-side rendered React application implementing Skyscanner's Falcon microsite architecture patterns using Nx monorepo, pnpm workspaces, and React 18 with SSR.
+A server-side rendered React application implementing Skyscanner's Falcon microsite architecture patterns using Nx monorepo, pnpm workspaces, and React 19 with SSR.
 
 ## Quick Start
 
@@ -17,12 +17,6 @@ pnpm build
 
 Visit [http://localhost:3000](http://localhost:3000) to see the app running.
 
-## Documentation
-
-- **[Getting Started](docs/GETTING_STARTED.md)** - Quick start guide and usage instructions
-- **[Architecture](docs/ARCHITECTURE.md)** - Detailed implementation guide and architectural patterns
-- **[Project Overview](docs/PROJECT_OVERVIEW.md)** - Original project documentation
-
 ## Project Structure
 
 ```
@@ -32,6 +26,7 @@ react-vite-ssr/
 │   └── webapp/          # React client application
 ├── libs/
 │   └── shared/          # Shared types and utilities
+├── config/              # Webpack configurations
 ├── nx.json              # Nx workspace configuration
 ├── pnpm-workspace.yaml  # pnpm workspace configuration
 └── package.json         # Root package.json with scripts
@@ -39,7 +34,7 @@ react-vite-ssr/
 
 ## Key Features
 
-- ✅ Server-side rendering (SSR) with React 18
+- ✅ Server-side rendering (SSR) with React 19
 - ✅ Route-based configuration system (Falcon-inspired)
 - ✅ Per-route HTML templates with Handlebars
 - ✅ Typed state management with shared types
@@ -47,17 +42,6 @@ react-vite-ssr/
 - ✅ Nx monorepo structure
 - ✅ pnpm workspace management
 - ✅ TypeScript throughout
-
-## Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development server with hot reload |
-| `pnpm build` | Build all projects for production |
-| `pnpm lint` | Lint all projects |
-| `pnpm lint:fix` | Auto-fix linting issues |
-| `pnpm typecheck` | Run TypeScript type checking |
-| `pnpm clean` | Clean build artifacts and cache |
 
 ## Available Routes
 
@@ -70,15 +54,22 @@ react-vite-ssr/
 
 ## Technology Stack
 
-- **React 19.2.3** - UI library with SSR support (upgraded from 18.3.1)
-- **Express 5.2.1** - Node.js server framework (upgraded from 4.21.2)
+- **React 19.2.3** - UI library with SSR support
+- **Express 5.2.1** - Node.js server framework
 - **TypeScript 5.9.3** - Type safety
-- **Nx 22.3.3** - Monorepo tooling (upgraded from 20.5.0)
+- **Nx 22.3.3** - Monorepo tooling
 - **pnpm 9.15.9** - Fast, disk-efficient package manager
 - **@loadable/component 5.16.7** - React code splitting
 - **Handlebars 4.7.8** - Template engine
 - **Webpack 5.104.1** - Module bundler
 - **Babel 7.28.5** - JavaScript transpiler
+
+## Documentation
+
+- **[Getting Started](GETTING_STARTED.md)** - Quick start guide and usage instructions
+- **[Architecture](ARCHITECTURE.md)** - Detailed implementation guide and architectural patterns
+- **[SSR Architecture](SSR-ARCHITECTURE.md)** - Deep dive into SSR rendering pipeline
+- **[Changelog](CHANGELOG.md)** - Version history and recent changes
 
 ## Falcon Architecture Patterns
 
@@ -90,11 +81,9 @@ This project implements key Falcon patterns:
 4. **Component data builders** - Server-side data preparation
 5. **Monorepo structure** - Nx workspace with apps and libs
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed implementation guide.
+## Getting Help
 
-## Contributing
-
-See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for development workflow and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for architectural guidelines.
+See [GETTING_STARTED.md](GETTING_STARTED.md) for development workflow and [ARCHITECTURE.md](ARCHITECTURE.md) for architectural guidelines.
 
 ## License
 

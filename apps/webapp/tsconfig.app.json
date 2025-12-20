@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "outDir": "../../dist/out-tsc",
+    "types": ["node", "webpack-env"]
+  },
+  "files": [],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules", "tmp"]
+}

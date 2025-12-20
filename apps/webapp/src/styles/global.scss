@@ -1,0 +1,102 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+// Modern CSS Reset
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: $color-background;
+  color: $color-text-primary;
+  font-family: $font-family-primary;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  @include flex-center(column);
+
+  gap: $spacing-2xl;
+  min-height: 100vh;
+  padding: $spacing-2xl $spacing-lg;
+  position: relative;
+
+  // Animated gradient background
+  &::before {
+    animation: gradient-shift 15s ease infinite;
+    background: radial-gradient(circle at 20% 50%, rgb(99 102 241 / 15%) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgb(236 72 153 / 15%) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgb(16 185 129 / 10%) 0%, transparent 50%);
+    background-size: 200% 200%;
+    content: '';
+    height: 100%;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 0;
+  }
+
+  // Content wrapper
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+// Selection styling
+::selection {
+  background-color: rgb(99 102 241 / 30%);
+  color: $color-text-primary;
+}
