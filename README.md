@@ -1,6 +1,6 @@
 # Falcon SSR Demo
 
-A server-side rendered React application implementing Skyscanner's Falcon microsite architecture patterns using Nx monorepo, pnpm workspaces, and React 19 with SSR - now powered by Vite for both dev (with HMR) and production SSR.
+A server-side rendered React application implementing Skyscanner's Falcon microsite architecture patterns using Nx monorepo, pnpm workspaces, and React 19 with SSR.
 
 ## Quick Start
 
