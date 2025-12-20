@@ -1,6 +1,8 @@
 {
-  "name": "react-vite-ssr",
-  "version": "0.0.1",
+  "name": "falcon-ssr-demo",
+  "version": "0.1.0",
+  "description": "A server-side rendered React application with Falcon-inspired architecture using Nx monorepo, now powered by Vite",
+  "private": true,
   "packageManager": "pnpm@10.24.0",
   "engines": {
     "pnpm": ">=10.24.0"
@@ -9,7 +11,11 @@
     "nx": "nx",
     "dev": "nx serve server",
     "build": "nx build webapp",
-    "preview": "nx run server:preview"
+    "preview": "nx run server:preview",
+    "lint": "npx nx run-many -t lint --all",
+    "lint:fix": "npx nx run-many -t lint:fix --all",
+    "typecheck": "npx nx run-many -t typecheck --all",
+    "clean": "rm -rf dist node_modules/.cache"
   },
   "dependencies": {
     "compression": "^1.8.1",
